@@ -39,12 +39,12 @@ opt.confirm = true -- Confirm to save changes before exiting modified buffer
 opt.cursorline = true -- Enable highlighting of the current line
 opt.expandtab = true -- Use spaces instead of tabs
 opt.fillchars = {
-  foldopen = "",
-  foldclose = "",
-  fold = " ",
-  foldsep = " ",
-  diff = "╱",
-  eob = " ",
+    foldopen = "",
+    foldclose = "",
+    fold = " ",
+    foldsep = " ",
+    diff = "╱",
+    eob = " ",
 }
 opt.foldlevel = 99
 opt.foldmethod = "indent"
@@ -98,17 +98,17 @@ vim.g.markdown_recommended_style = 0
 -- Sync with system clipboard. Only set if not in ssh, to make sure the OSC 52
 -- integration works automatically. Deferred: "xsel" and "pbcopy" can be slow to detect.
 vim.schedule(function()
-  vim.opt.clipboard = vim.env.SSH_CONNECTION and "" or "unnamedplus"
+    vim.opt.clipboard = vim.env.SSH_CONNECTION and "" or "unnamedplus"
 end)
 
 -- remember the defaults of these options (used by Util.set_default)
 Util.default_options = {
-  indentexpr = vim.o.indentexpr,
-  foldmethod = vim.o.foldmethod,
-  foldexpr = vim.o.foldexpr,
+    indentexpr = vim.o.indentexpr,
+    foldmethod = vim.o.foldmethod,
+    foldexpr = vim.o.foldexpr,
 }
 
 -- silence vim.deprecate warnings (see vim.g.deprecation_warnings above)
 if vim.g.deprecation_warnings == false then
-  vim.deprecate = function() end
+    vim.deprecate = function() end
 end

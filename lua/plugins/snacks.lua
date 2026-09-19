@@ -4,110 +4,111 @@
 
 -- Terminal Mappings
 local function term_nav(dir)
-  ---@param self snacks.terminal
-  return function(self)
-    return self:is_floating() and "<c-" .. dir .. ">" or vim.schedule(function()
-      vim.cmd.wincmd(dir)
-    end)
-  end
+    ---@param self snacks.terminal
+    return function(self)
+        return self:is_floating() and "<c-" .. dir .. ">"
+            or vim.schedule(function()
+                vim.cmd.wincmd(dir)
+            end)
+    end
 end
 
 return {
-  "folke/snacks.nvim",
-  priority = 1000,
-  lazy = false,
-  ---@type snacks.Config
-  opts = {
-    -- utils
-    bigfile = { enabled = true },
-    quickfile = { enabled = true },
-    terminal = {
-      win = {
-        keys = {
-          nav_h = { "<C-h>", term_nav("h"), desc = "Go to Left Window", expr = true, mode = "t" },
-          nav_j = { "<C-j>", term_nav("j"), desc = "Go to Lower Window", expr = true, mode = "t" },
-          nav_k = { "<C-k>", term_nav("k"), desc = "Go to Upper Window", expr = true, mode = "t" },
-          nav_l = { "<C-l>", term_nav("l"), desc = "Go to Right Window", expr = true, mode = "t" },
-          hide_slash = { "<C-/>", "hide", desc = "Hide Terminal", mode = "t" },
-          hide_underscore = { "<c-_>", "hide", desc = "which_key_ignore", mode = "t" },
-        },
-      },
-    },
-
-    -- ui
-    indent = { enabled = true },
-    input = { enabled = true },
-    notifier = { enabled = true },
-    scope = { enabled = true },
-    scroll = { enabled = true },
-    statuscolumn = { enabled = false }, -- we set this in config/options.lua
-    toggle = { map = Util.safe_keymap_set },
-    words = { enabled = true },
-
-    -- file explorer (<leader>e)
-    explorer = {},
-
-    -- picker (find files, grep, lsp, git, ...)
-    picker = {
-      win = {
-        input = {
-          keys = {
-            ["<a-c>"] = {
-              "toggle_cwd",
-              mode = { "n", "i" },
+    "folke/snacks.nvim",
+    priority = 1000,
+    lazy = false,
+    ---@type snacks.Config
+    opts = {
+        -- utils
+        bigfile = { enabled = true },
+        quickfile = { enabled = true },
+        terminal = {
+            win = {
+                keys = {
+                    nav_h = { "<C-h>", term_nav("h"), desc = "Go to Left Window", expr = true, mode = "t" },
+                    nav_j = { "<C-j>", term_nav("j"), desc = "Go to Lower Window", expr = true, mode = "t" },
+                    nav_k = { "<C-k>", term_nav("k"), desc = "Go to Upper Window", expr = true, mode = "t" },
+                    nav_l = { "<C-l>", term_nav("l"), desc = "Go to Right Window", expr = true, mode = "t" },
+                    hide_slash = { "<C-/>", "hide", desc = "Hide Terminal", mode = "t" },
+                    hide_underscore = { "<c-_>", "hide", desc = "which_key_ignore", mode = "t" },
+                },
             },
-            ["<a-t>"] = {
-              "trouble_open",
-              mode = { "n", "i" },
-            },
-            -- flash.nvim integration
-            ["<a-s>"] = { "flash", mode = { "n", "i" } },
-            ["s"] = { "flash" },
-          },
         },
-      },
-      actions = {
-        ---@param p snacks.Picker
-        toggle_cwd = function(p)
-          local root = Util.root({ buf = p.input.filter.current_buf, normalize = true })
-          local cwd = vim.fs.normalize((vim.uv or vim.loop).cwd() or ".")
-          local current = p:cwd()
-          p:set_cwd(current == root and cwd or root)
-          p:find()
-        end,
-        trouble_open = function(...)
-          return require("trouble.sources.snacks").actions.trouble_open.action(...)
-        end,
-        flash = function(picker)
-          require("flash").jump({
-            pattern = "^",
-            label = { after = { 0, 0 } },
-            search = {
-              mode = "search",
-              exclude = {
-                function(win)
-                  return vim.bo[vim.api.nvim_win_get_buf(win)].filetype ~= "snacks_picker_list"
+
+        -- ui
+        indent = { enabled = true },
+        input = { enabled = true },
+        notifier = { enabled = true },
+        scope = { enabled = true },
+        scroll = { enabled = true },
+        statuscolumn = { enabled = false }, -- we set this in config/options.lua
+        toggle = { map = Util.safe_keymap_set },
+        words = { enabled = true },
+
+        -- file explorer (<leader>e)
+        explorer = {},
+
+        -- picker (find files, grep, lsp, git, ...)
+        picker = {
+            win = {
+                input = {
+                    keys = {
+                        ["<a-c>"] = {
+                            "toggle_cwd",
+                            mode = { "n", "i" },
+                        },
+                        ["<a-t>"] = {
+                            "trouble_open",
+                            mode = { "n", "i" },
+                        },
+                        -- flash.nvim integration
+                        ["<a-s>"] = { "flash", mode = { "n", "i" } },
+                        ["s"] = { "flash" },
+                    },
+                },
+            },
+            actions = {
+                ---@param p snacks.Picker
+                toggle_cwd = function(p)
+                    local root = Util.root({ buf = p.input.filter.current_buf, normalize = true })
+                    local cwd = vim.fs.normalize((vim.uv or vim.loop).cwd() or ".")
+                    local current = p:cwd()
+                    p:set_cwd(current == root and cwd or root)
+                    p:find()
                 end,
-              },
+                trouble_open = function(...)
+                    return require("trouble.sources.snacks").actions.trouble_open.action(...)
+                end,
+                flash = function(picker)
+                    require("flash").jump({
+                        pattern = "^",
+                        label = { after = { 0, 0 } },
+                        search = {
+                            mode = "search",
+                            exclude = {
+                                function(win)
+                                    return vim.bo[vim.api.nvim_win_get_buf(win)].filetype ~= "snacks_picker_list"
+                                end,
+                            },
+                        },
+                        action = function(match)
+                            local idx = picker.list:row2idx(match.pos[1])
+                            picker.list:_move(idx, true, true)
+                        end,
+                    })
+                end,
             },
-            action = function(match)
-              local idx = picker.list:row2idx(match.pos[1])
-              picker.list:_move(idx, true, true)
-            end,
-          })
-        end,
-      },
+        },
     },
-  },
-  config = function(_, opts)
-    local notify = vim.notify
-    require("snacks").setup(opts)
-    -- HACK: restore vim.notify after snacks setup and let noice.nvim take over
-    -- this is needed to have early notifications show up in noice history
-    if Util.has("noice.nvim") then
-      vim.notify = notify
-    end
-  end,
+    config = function(_, opts)
+        local notify = vim.notify
+        require("snacks").setup(opts)
+        -- HACK: restore vim.notify after snacks setup and let noice.nvim take over
+        -- this is needed to have early notifications show up in noice history
+        if Util.has("noice.nvim") then
+            vim.notify = notify
+        end
+    end,
   -- stylua: ignore
   keys = {
     -- scratch buffers

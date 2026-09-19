@@ -1,10 +1,10 @@
 -- Finds and lists all of the TODO, HACK, BUG, etc comment
 -- in your project and loads them into a browsable list.
 return {
-  "folke/todo-comments.nvim",
-  cmd = { "TodoTrouble", "TodoTelescope" },
-  event = { "BufReadPost", "BufNewFile", "BufWritePre" },
-  opts = {},
+    "folke/todo-comments.nvim",
+    cmd = { "TodoTrouble", "TodoTelescope" },
+    event = { "BufReadPost", "BufNewFile", "BufWritePre" },
+    opts = {},
   -- stylua: ignore
   keys = {
     { "]t", function() require("todo-comments").jump_next() end, desc = "Next Todo Comment" },
